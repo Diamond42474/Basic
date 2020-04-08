@@ -7,66 +7,44 @@
    7               		.text
    8               	.Ltext0:
    9               		.cfi_sections	.debug_frame
-  10               		.section	.text.startup,"ax",@progbits
-  11               	.global	main
-  13               	main:
-  14               	.LFB11:
-  15               		.file 1 "main.c"
+  11               	change.part.0:
+  12               	.LVL0:
+  13               	.LFB15:
+  14               		.file 1 "main.c"
    1:main.c        **** #include "avr_compiler.h"
    2:main.c        **** int change_rate = 1;
    3:main.c        **** int start = 100;
    4:main.c        **** int scale = 100;
    5:main.c        **** int main(){
-  16               		.loc 1 5 11 view -0
-  17               		.cfi_startproc
-  18               	/* prologue: function */
-  19               	/* frame size = 0 */
-  20               	/* stack size = 0 */
-  21               	.L__stack_usage = 0
-   6:main.c        **** 	DDRB = 0b000111;
-  22               		.loc 1 6 2 view .LVU1
-  23               		.loc 1 6 7 is_stmt 0 view .LVU2
-  24 0000 87E0      		ldi r24,lo8(7)
-  25 0002 87BB      		out 0x17,r24
-  26               	.L2:
-   7:main.c        ****     while (true) {
-  27               		.loc 1 7 5 is_stmt 1 view .LVU3
-   8:main.c        **** 		
-   9:main.c        **** 		if(PINB & (1<<3)){
-  28               		.loc 1 9 3 view .LVU4
-  29               		.loc 1 9 5 is_stmt 0 view .LVU5
-  30 0004 B39B      		sbis 0x16,3
-  31 0006 00C0      		rjmp .L3
-  32               	.LBB19:
-  10:main.c        **** 			change(1,2);
-  33               		.loc 1 10 4 is_stmt 1 view .LVU6
-  34               	.LVL0:
-  35               	.LBB20:
-  36               	.LBI20:
-  11:main.c        **** 		}else{
-  12:main.c        **** 			change(0,2);
-  13:main.c        **** 		}
-  14:main.c        **** 		/*
-  15:main.c        **** 		int delay = start;
-  16:main.c        **** 		for(int i=0;i<scale;i++){
-  17:main.c        **** 			delay-=change_rate;
-  18:main.c        **** 			change(1,0);
-  19:main.c        **** 			change(0,1);
-  20:main.c        ****         	delay_ms(delay);
-  21:main.c        **** 			change(0,0);
-  22:main.c        **** 			change(1,1);
-  23:main.c        ****        		delay_ms(delay); 
-  24:main.c        **** 		}
-  25:main.c        **** 		for(int i=0;i<scale;i++){
-  26:main.c        **** 			delay+=change_rate;
-  27:main.c        **** 			change(1,0);
-  28:main.c        **** 			change(0,1);
-  29:main.c        ****         	delay_ms(delay);
-  30:main.c        **** 			change(0,0);
-  31:main.c        **** 			change(1,1);
-  32:main.c        ****        		delay_ms(delay); 
-  33:main.c        **** 		}
-  34:main.c        **** 		*/
+   6:main.c        **** 	DDRB = 0b000111; // sets 0-2 as outputs
+   7:main.c        **** 	PORTB |= (1 << 3); // enables pull-up resistor
+   8:main.c        ****     while (true) {
+   9:main.c        **** 		if(get_button(3)){
+  10:main.c        **** 			change(0,2);
+  11:main.c        **** 			int delay = start;
+  12:main.c        **** 			for(int i=0;i<scale&&get_button(3);i++){
+  13:main.c        **** 				delay-=change_rate;
+  14:main.c        **** 				change(1,0);
+  15:main.c        **** 				change(0,1);
+  16:main.c        ****         		delay_ms(delay);
+  17:main.c        **** 				change(0,0);
+  18:main.c        **** 				change(1,1);
+  19:main.c        ****        			delay_ms(delay); 
+  20:main.c        **** 			}
+  21:main.c        **** 			for(int i=0;i<scale&&get_button(3);i++){
+  22:main.c        **** 				delay+=change_rate;
+  23:main.c        **** 				change(1,0);
+  24:main.c        **** 				change(0,1);
+  25:main.c        ****         		delay_ms(delay);
+  26:main.c        **** 				change(0,0);
+  27:main.c        **** 				change(1,1);
+  28:main.c        ****        			delay_ms(delay); 
+  29:main.c        **** 			}
+  30:main.c        **** 		}else{
+  31:main.c        **** 			change(1,2);
+  32:main.c        **** 			change(0,1);
+  33:main.c        **** 			change(0,0);
+  34:main.c        **** 		}
   35:main.c        ****     } 
   36:main.c        **** }
   37:main.c        **** void delay_ms(int ms ){
@@ -75,104 +53,85 @@
   40:main.c        ****    	}
   41:main.c        **** }
   42:main.c        **** void change(int x, int port){
-  37               		.loc 1 42 6 view .LVU7
-  38               	.LBB21:
+  15               		.loc 1 42 6 view -0
+  16               		.cfi_startproc
+  17               	/* prologue: function */
+  18               	/* frame size = 0 */
+  19               	/* stack size = 0 */
+  20               	.L__stack_usage = 0
   43:main.c        **** 	if(x==0){
-  39               		.loc 1 43 2 view .LVU8
   44:main.c        **** 		PORTB &=~(1<<port);
+  21               		.loc 1 44 3 view .LVU1
+  22               		.loc 1 44 9 is_stmt 0 view .LVU2
+  23 0000 98B3      		in r25,0x18
+  24               		.loc 1 44 14 view .LVU3
+  25 0002 21E0      		ldi r18,lo8(1)
+  26 0004 30E0      		ldi r19,0
+  27 0006 00C0      		rjmp 2f
+  28               		1:
+  29 0008 220F      		lsl r18
+  30               		2:
+  31 000a 8A95      		dec r24
+  32 000c 02F4      		brpl 1b
+  33               		.loc 1 44 9 view .LVU4
+  34 000e 2095      		com r18
+  35 0010 2923      		and r18,r25
+  36 0012 28BB      		out 0x18,r18
+  37               	/* epilogue start */
   45:main.c        **** 	}else{
   46:main.c        **** 		PORTB |=(1<<port);
-  40               		.loc 1 46 3 view .LVU9
-  41               		.loc 1 46 9 is_stmt 0 view .LVU10
-  42 0008 C29A      		sbi 0x18,2
   47:main.c        **** 	}
   48:main.c        **** }  
-  43               		.loc 1 48 1 view .LVU11
-  44 000a 00C0      		rjmp .L2
-  45               	.LVL1:
-  46               	.L3:
-  47               		.loc 1 48 1 view .LVU12
-  48               	.LBE21:
-  49               	.LBE20:
-  50               	.LBE19:
-  51               	.LBB22:
-  12:main.c        **** 		}
-  52               		.loc 1 12 4 is_stmt 1 view .LVU13
-  53               	.LBB23:
-  54               	.LBI23:
-  42:main.c        **** 	if(x==0){
-  55               		.loc 1 42 6 view .LVU14
-  56               	.LBE23:
-  57               	.LBE22:
-  43:main.c        **** 		PORTB &=~(1<<port);
-  58               		.loc 1 43 2 view .LVU15
-  59               	.LBB27:
-  60               	.LBB26:
-  61               	.LBB24:
-  62               	.LBI24:
-  42:main.c        **** 	if(x==0){
-  63               		.loc 1 42 6 view .LVU16
-  64               	.LBB25:
-  44:main.c        **** 	}else{
-  65               		.loc 1 44 3 view .LVU17
-  44:main.c        **** 	}else{
-  66               		.loc 1 44 9 is_stmt 0 view .LVU18
-  67 000c C298      		cbi 0x18,2
-  68               		.loc 1 48 1 view .LVU19
-  69 000e 00C0      		rjmp .L2
-  70               	.LBE25:
-  71               	.LBE24:
-  72               	.LBE26:
-  73               	.LBE27:
-  74               		.cfi_endproc
-  75               	.LFE11:
-  77               		.text
-  78               	.global	delay_ms
-  80               	delay_ms:
-  81               	.LVL2:
-  82               	.LFB12:
+  38               		.loc 1 48 1 view .LVU5
+  39 0014 0895      		ret
+  40               		.cfi_endproc
+  41               	.LFE15:
+  43               	.global	delay_ms
+  45               	delay_ms:
+  46               	.LVL1:
+  47               	.LFB12:
   37:main.c        ****    	for (int i = 0; i < ms; i++){
-  83               		.loc 1 37 23 is_stmt 1 view -0
-  84               		.cfi_startproc
-  85               	/* prologue: function */
-  86               	/* frame size = 0 */
-  87               	/* stack size = 0 */
-  88               	.L__stack_usage = 0
+  48               		.loc 1 37 23 is_stmt 1 view -0
+  49               		.cfi_startproc
+  50               	/* prologue: function */
+  51               	/* frame size = 0 */
+  52               	/* stack size = 0 */
+  53               	.L__stack_usage = 0
   37:main.c        ****    	for (int i = 0; i < ms; i++){
-  89               		.loc 1 37 23 is_stmt 0 view .LVU21
-  90 0000 9C01      		movw r18,r24
+  54               		.loc 1 37 23 is_stmt 0 view .LVU7
+  55 0016 9C01      		movw r18,r24
   38:main.c        ****       	_delay_ms(1);
-  91               		.loc 1 38 5 is_stmt 1 view .LVU22
-  92               	.LBB28:
+  56               		.loc 1 38 5 is_stmt 1 view .LVU8
+  57               	.LBB36:
   38:main.c        ****       	_delay_ms(1);
-  93               		.loc 1 38 10 view .LVU23
-  94               	.LVL3:
+  58               		.loc 1 38 10 view .LVU9
+  59               	.LVL2:
   38:main.c        ****       	_delay_ms(1);
-  95               		.loc 1 38 14 is_stmt 0 view .LVU24
-  96 0002 90E0      		ldi r25,0
-  97 0004 80E0      		ldi r24,0
-  98               	.LVL4:
-  99               	.L6:
+  60               		.loc 1 38 14 is_stmt 0 view .LVU10
+  61 0018 90E0      		ldi r25,0
+  62 001a 80E0      		ldi r24,0
+  63               	.LVL3:
+  64               	.L3:
   38:main.c        ****       	_delay_ms(1);
- 100               		.loc 1 38 21 is_stmt 1 discriminator 1 view .LVU25
+  65               		.loc 1 38 21 is_stmt 1 discriminator 1 view .LVU11
   38:main.c        ****       	_delay_ms(1);
- 101               		.loc 1 38 5 is_stmt 0 discriminator 1 view .LVU26
- 102 0006 8217      		cp r24,r18
- 103 0008 9307      		cpc r25,r19
- 104 000a 04F0      		brlt .L7
- 105               	/* epilogue start */
- 106               	.LBE28:
+  66               		.loc 1 38 5 is_stmt 0 discriminator 1 view .LVU12
+  67 001c 8217      		cp r24,r18
+  68 001e 9307      		cpc r25,r19
+  69 0020 04F0      		brlt .L4
+  70               	/* epilogue start */
+  71               	.LBE36:
   41:main.c        **** void change(int x, int port){
- 107               		.loc 1 41 1 view .LVU27
- 108 000c 0895      		ret
- 109               	.L7:
- 110               	.LBB31:
+  72               		.loc 1 41 1 view .LVU13
+  73 0022 0895      		ret
+  74               	.L4:
+  75               	.LBB39:
   39:main.c        ****    	}
- 111               		.loc 1 39 8 is_stmt 1 view .LVU28
- 112               	.LVL5:
- 113               	.LBB29:
- 114               	.LBI29:
- 115               		.file 2 "/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h"
+  76               		.loc 1 39 8 is_stmt 1 view .LVU14
+  77               	.LVL4:
+  78               	.LBB37:
+  79               	.LBI37:
+  80               		.file 2 "/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h"
    1:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** /* Copyright (c) 2002, Marek Michalkiewicz
    2:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h ****    Copyright (c) 2004,2005,2007 Joerg Wunsch
    3:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h ****    Copyright (c) 2007  Florin-Viorel Petrov
@@ -339,20 +298,20 @@
  164:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h ****  */
  165:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** void
  166:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** _delay_ms(double __ms)
- 116               		.loc 2 166 1 view .LVU29
- 117               	.LBB30:
+  81               		.loc 2 166 1 view .LVU15
+  82               	.LBB38:
  167:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** {
  168:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	double __tmp ;
- 118               		.loc 2 168 2 view .LVU30
+  83               		.loc 2 168 2 view .LVU16
  169:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** #if __HAS_DELAY_CYCLES && defined(__OPTIMIZE__) && \
  170:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h ****   !defined(__DELAY_BACKWARD_COMPATIBLE__) &&	   \
  171:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h ****   __STDC_HOSTED__
  172:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	uint32_t __ticks_dc;
- 119               		.loc 2 172 2 view .LVU31
+  84               		.loc 2 172 2 view .LVU17
  173:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	extern void __builtin_avr_delay_cycles(unsigned long);
- 120               		.loc 2 173 2 view .LVU32
+  85               		.loc 2 173 2 view .LVU18
  174:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	__tmp = ((F_CPU) / 1e3) * __ms;
- 121               		.loc 2 174 2 view .LVU33
+  86               		.loc 2 174 2 view .LVU19
  175:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 
  176:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	#if defined(__DELAY_ROUND_DOWN__)
  177:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)fabs(__tmp);
@@ -363,128 +322,560 @@
  182:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	#else
  183:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 		//round up by default
  184:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
- 122               		.loc 2 184 3 view .LVU34
+  87               		.loc 2 184 3 view .LVU20
  185:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	#endif
  186:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 
  187:/usr/local/Cellar/avr-gcc/9.3.0/avr/include/util/delay.h **** 	__builtin_avr_delay_cycles(__ticks_dc);
- 123               		.loc 2 187 2 view .LVU35
- 124 000e EFEC      		ldi r30,lo8(1999)
- 125 0010 F7E0      		ldi r31,hi8(1999)
- 126 0012 3197      	1:	sbiw r30,1
- 127 0014 01F4      		brne 1b
- 128 0016 00C0      		rjmp .
- 129 0018 0000      		nop
- 130               	.LVL6:
- 131               		.loc 2 187 2 is_stmt 0 view .LVU36
- 132               	.LBE30:
- 133               	.LBE29:
+  88               		.loc 2 187 2 view .LVU21
+  89 0024 EFEC      		ldi r30,lo8(1999)
+  90 0026 F7E0      		ldi r31,hi8(1999)
+  91 0028 3197      	1:	sbiw r30,1
+  92 002a 01F4      		brne 1b
+  93 002c 00C0      		rjmp .
+  94 002e 0000      		nop
+  95               	.LVL5:
+  96               		.loc 2 187 2 is_stmt 0 view .LVU22
+  97               	.LBE38:
+  98               	.LBE37:
   38:main.c        ****       	_delay_ms(1);
- 134               		.loc 1 38 29 is_stmt 1 view .LVU37
+  99               		.loc 1 38 29 is_stmt 1 view .LVU23
   38:main.c        ****       	_delay_ms(1);
- 135               		.loc 1 38 30 is_stmt 0 view .LVU38
- 136 001a 0196      		adiw r24,1
- 137               	.LVL7:
+ 100               		.loc 1 38 30 is_stmt 0 view .LVU24
+ 101 0030 0196      		adiw r24,1
+ 102               	.LVL6:
   38:main.c        ****       	_delay_ms(1);
- 138               		.loc 1 38 30 view .LVU39
- 139 001c 00C0      		rjmp .L6
- 140               	.LBE31:
- 141               		.cfi_endproc
- 142               	.LFE12:
- 144               	.global	change
- 146               	change:
- 147               	.LVL8:
- 148               	.LFB13:
+ 103               		.loc 1 38 30 view .LVU25
+ 104 0032 00C0      		rjmp .L3
+ 105               	.LBE39:
+ 106               		.cfi_endproc
+ 107               	.LFE12:
+ 109               	.global	change
+ 111               	change:
+ 112               	.LVL7:
+ 113               	.LFB13:
   42:main.c        **** 	if(x==0){
- 149               		.loc 1 42 29 is_stmt 1 view -0
- 150               		.cfi_startproc
- 151               	/* prologue: function */
- 152               	/* frame size = 0 */
- 153               	/* stack size = 0 */
- 154               	.L__stack_usage = 0
-  43:main.c        **** 		PORTB &=~(1<<port);
- 155               		.loc 1 43 2 view .LVU41
- 156 001e 21E0      		ldi r18,lo8(1)
- 157 0020 30E0      		ldi r19,0
- 158 0022 00C0      		rjmp 2f
- 159               		1:
- 160 0024 220F      		lsl r18
- 161               		2:
- 162 0026 6A95      		dec r22
- 163 0028 02F4      		brpl 1b
-  43:main.c        **** 		PORTB &=~(1<<port);
- 164               		.loc 1 43 4 is_stmt 0 view .LVU42
- 165 002a 892B      		or r24,r25
- 166 002c 01F4      		brne .L9
- 167               	.LVL9:
- 168               	.LBB34:
- 169               	.LBI34:
+ 114               		.loc 1 42 29 is_stmt 1 view -0
+ 115               		.cfi_startproc
+ 116               	/* prologue: function */
+ 117               	/* frame size = 0 */
+ 118               	/* stack size = 0 */
+ 119               	.L__stack_usage = 0
   42:main.c        **** 	if(x==0){
- 170               		.loc 1 42 6 is_stmt 1 view .LVU43
- 171               	.LBB35:
-  44:main.c        **** 	}else{
- 172               		.loc 1 44 3 view .LVU44
-  44:main.c        **** 	}else{
- 173               		.loc 1 44 9 is_stmt 0 view .LVU45
- 174 002e 88B3      		in r24,0x18
- 175               	.LVL10:
-  44:main.c        **** 	}else{
- 176               		.loc 1 44 9 view .LVU46
- 177 0030 2095      		com r18
- 178 0032 2823      		and r18,r24
- 179               	.LVL11:
- 180               	.L11:
-  44:main.c        **** 	}else{
- 181               		.loc 1 44 9 view .LVU47
- 182               	.LBE35:
- 183               	.LBE34:
+ 120               		.loc 1 42 29 is_stmt 0 view .LVU27
+ 121 0034 9C01      		movw r18,r24
+ 122 0036 972F      		mov r25,r23
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 123               		.loc 1 43 2 is_stmt 1 view .LVU28
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 124               		.loc 1 43 4 is_stmt 0 view .LVU29
+ 125 0038 232B      		or r18,r19
+ 126 003a 01F4      		brne .L6
+ 127 003c 862F      		mov r24,r22
+ 128               	.LVL8:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 129               		.loc 1 43 4 view .LVU30
+ 130 003e 00C0      		rjmp change.part.0
+ 131               	.LVL9:
+ 132               	.L6:
   46:main.c        **** 	}
- 184               		.loc 1 46 9 view .LVU48
- 185 0034 28BB      		out 0x18,r18
- 186               	/* epilogue start */
- 187               		.loc 1 48 1 view .LVU49
- 188 0036 0895      		ret
- 189               	.LVL12:
- 190               	.L9:
+ 133               		.loc 1 46 3 is_stmt 1 view .LVU31
   46:main.c        **** 	}
- 191               		.loc 1 46 3 is_stmt 1 view .LVU50
+ 134               		.loc 1 46 9 is_stmt 0 view .LVU32
+ 135 0040 88B3      		in r24,0x18
   46:main.c        **** 	}
- 192               		.loc 1 46 9 is_stmt 0 view .LVU51
- 193 0038 88B3      		in r24,0x18
- 194               	.LVL13:
+ 136               		.loc 1 46 13 view .LVU33
+ 137 0042 21E0      		ldi r18,lo8(1)
+ 138 0044 30E0      		ldi r19,0
+ 139               	.LVL10:
   46:main.c        **** 	}
- 195               		.loc 1 46 9 view .LVU52
- 196 003a 282B      		or r18,r24
- 197 003c 00C0      		rjmp .L11
- 198               		.cfi_endproc
- 199               	.LFE13:
- 201               	.global	scale
- 202               		.data
- 205               	scale:
- 206 0000 6400      		.word	100
- 207               	.global	start
- 210               	start:
- 211 0002 6400      		.word	100
- 212               	.global	change_rate
- 215               	change_rate:
- 216 0004 0100      		.word	1
- 217               		.text
- 218               	.Letext0:
- 219               		.file 3 "/usr/local/Cellar/avr-gcc/9.3.0/avr/include/stdint.h"
- 220               		.file 4 "/usr/local/Cellar/avr-gcc/9.3.0/lib/avr-gcc/9/gcc/avr/9.3.0/include/stddef.h"
- 221               		.file 5 "/usr/local/Cellar/avr-gcc/9.3.0/avr/include/stdlib.h"
+ 140               		.loc 1 46 13 view .LVU34
+ 141 0046 00C0      		rjmp 2f
+ 142               		1:
+ 143 0048 220F      		lsl r18
+ 144               		2:
+ 145 004a 6A95      		dec r22
+ 146 004c 02F4      		brpl 1b
+  46:main.c        **** 	}
+ 147               		.loc 1 46 9 view .LVU35
+ 148 004e 822B      		or r24,r18
+ 149 0050 88BB      		out 0x18,r24
+ 150               	/* epilogue start */
+ 151               		.loc 1 48 1 view .LVU36
+ 152 0052 0895      		ret
+ 153               		.cfi_endproc
+ 154               	.LFE13:
+ 156               	.global	get_button
+ 158               	get_button:
+ 159               	.LVL11:
+ 160               	.LFB14:
+  49:main.c        **** get_button(int port){
+ 161               		.loc 1 49 21 is_stmt 1 view -0
+ 162               		.cfi_startproc
+ 163               	/* prologue: function */
+ 164               	/* frame size = 0 */
+ 165               	/* stack size = 0 */
+ 166               	.L__stack_usage = 0
+  50:main.c        **** 	if(!(PINB & (1<<port))){
+ 167               		.loc 1 50 2 view .LVU38
+ 168               		.loc 1 50 7 is_stmt 0 view .LVU39
+ 169 0054 26B3      		in r18,0x16
+ 170 0056 30E0      		ldi r19,0
+ 171               		.loc 1 50 5 view .LVU40
+ 172 0058 A901      		movw r20,r18
+ 173 005a 00C0      		rjmp 2f
+ 174               		1:
+ 175 005c 5595      		asr r21
+ 176 005e 4795      		ror r20
+ 177               		2:
+ 178 0060 8A95      		dec r24
+ 179 0062 02F4      		brpl 1b
+ 180 0064 CA01      		movw r24,r20
+ 181               	.LVL12:
+ 182               		.loc 1 50 5 view .LVU41
+ 183 0066 8095      		com r24
+ 184 0068 9095      		com r25
+  51:main.c        **** 		return true;
+  52:main.c        **** 	}else{
+  53:main.c        **** 		return false;
+  54:main.c        **** 	}
+  55:main.c        **** }
+ 185               		.loc 1 55 1 view .LVU42
+ 186 006a 8170      		andi r24,1
+ 187 006c 9927      		clr r25
+ 188               	/* epilogue start */
+ 189 006e 0895      		ret
+ 190               		.cfi_endproc
+ 191               	.LFE14:
+ 193               		.section	.text.startup,"ax",@progbits
+ 194               	.global	main
+ 196               	main:
+ 197               	.LFB11:
+   5:main.c        **** 	DDRB = 0b000111; // sets 0-2 as outputs
+ 198               		.loc 1 5 11 is_stmt 1 view -0
+ 199               		.cfi_startproc
+ 200               	/* prologue: function */
+ 201               	/* frame size = 0 */
+ 202               	/* stack size = 0 */
+ 203               	.L__stack_usage = 0
+   6:main.c        **** 	PORTB |= (1 << 3); // enables pull-up resistor
+ 204               		.loc 1 6 2 view .LVU44
+   6:main.c        **** 	PORTB |= (1 << 3); // enables pull-up resistor
+ 205               		.loc 1 6 7 is_stmt 0 view .LVU45
+ 206 0000 87E0      		ldi r24,lo8(7)
+ 207 0002 87BB      		out 0x17,r24
+   7:main.c        ****     while (true) {
+ 208               		.loc 1 7 2 is_stmt 1 view .LVU46
+   7:main.c        ****     while (true) {
+ 209               		.loc 1 7 8 is_stmt 0 view .LVU47
+ 210 0004 C39A      		sbi 0x18,3
+ 211               	.L9:
+   8:main.c        **** 		if(get_button(3)){
+ 212               		.loc 1 8 5 is_stmt 1 view .LVU48
+   9:main.c        **** 			change(0,2);
+ 213               		.loc 1 9 3 view .LVU49
+ 214               	.LBB40:
+   9:main.c        **** 			change(0,2);
+ 215               		.loc 1 9 6 is_stmt 0 view .LVU50
+ 216 0006 83E0      		ldi r24,lo8(3)
+ 217 0008 90E0      		ldi r25,0
+ 218 000a 00D0      		rcall get_button
+ 219               	.LVL13:
+   9:main.c        **** 			change(0,2);
+ 220               		.loc 1 9 5 view .LVU51
+ 221 000c 892B      		or r24,r25
+ 222 000e 01F4      		brne .+2
+ 223 0010 00C0      		rjmp .L10
+ 224               	.LBB41:
+  10:main.c        **** 			int delay = start;
+ 225               		.loc 1 10 4 is_stmt 1 view .LVU52
+ 226               	.LVL14:
+ 227               	.LBB42:
+ 228               	.LBI42:
+  42:main.c        **** 	if(x==0){
+ 229               		.loc 1 42 6 view .LVU53
+ 230               	.LBB43:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 231               		.loc 1 43 2 view .LVU54
+ 232 0012 82E0      		ldi r24,lo8(2)
+ 233 0014 90E0      		ldi r25,0
+ 234 0016 00D0      		rcall change.part.0
+ 235               	.LVL15:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 236               		.loc 1 43 2 is_stmt 0 view .LVU55
+ 237               	.LBE43:
+ 238               	.LBE42:
+  11:main.c        **** 			for(int i=0;i<scale&&get_button(3);i++){
+ 239               		.loc 1 11 4 is_stmt 1 view .LVU56
+  11:main.c        **** 			for(int i=0;i<scale&&get_button(3);i++){
+ 240               		.loc 1 11 8 is_stmt 0 view .LVU57
+ 241 0018 C091 0000 		lds r28,start
+ 242 001c D091 0000 		lds r29,start+1
+ 243               	.LVL16:
+  12:main.c        **** 				delay-=change_rate;
+ 244               		.loc 1 12 4 is_stmt 1 view .LVU58
+ 245               	.LBB44:
+  12:main.c        **** 				delay-=change_rate;
+ 246               		.loc 1 12 8 view .LVU59
+  12:main.c        **** 				delay-=change_rate;
+ 247               		.loc 1 12 12 is_stmt 0 view .LVU60
+ 248 0020 10E0      		ldi r17,0
+ 249 0022 00E0      		ldi r16,0
+ 250               	.LVL17:
+ 251               	.L11:
+  12:main.c        **** 				delay-=change_rate;
+ 252               		.loc 1 12 16 is_stmt 1 discriminator 1 view .LVU61
+  12:main.c        **** 				delay-=change_rate;
+ 253               		.loc 1 12 4 is_stmt 0 discriminator 1 view .LVU62
+ 254 0024 8091 0000 		lds r24,scale
+ 255 0028 9091 0000 		lds r25,scale+1
+ 256 002c 0817      		cp r16,r24
+ 257 002e 1907      		cpc r17,r25
+ 258 0030 04F0      		brlt .L12
+ 259               	.L15:
+  12:main.c        **** 				delay-=change_rate;
+ 260               		.loc 1 12 12 view .LVU63
+ 261 0032 10E0      		ldi r17,0
+ 262 0034 00E0      		ldi r16,0
+ 263               	.LVL18:
+ 264               	.L13:
+  12:main.c        **** 				delay-=change_rate;
+ 265               		.loc 1 12 12 view .LVU64
+ 266               	.LBE44:
+ 267               	.LBB54:
+  21:main.c        **** 				delay+=change_rate;
+ 268               		.loc 1 21 16 is_stmt 1 discriminator 1 view .LVU65
+  21:main.c        **** 				delay+=change_rate;
+ 269               		.loc 1 21 4 is_stmt 0 discriminator 1 view .LVU66
+ 270 0036 8091 0000 		lds r24,scale
+ 271 003a 9091 0000 		lds r25,scale+1
+ 272 003e 0817      		cp r16,r24
+ 273 0040 1907      		cpc r17,r25
+ 274 0042 04F4      		brge .L9
+  21:main.c        **** 				delay+=change_rate;
+ 275               		.loc 1 21 25 discriminator 3 view .LVU67
+ 276 0044 83E0      		ldi r24,lo8(3)
+ 277 0046 90E0      		ldi r25,0
+ 278 0048 00D0      		rcall get_button
+ 279               	.LVL19:
+  21:main.c        **** 				delay+=change_rate;
+ 280               		.loc 1 21 23 discriminator 3 view .LVU68
+ 281 004a 892B      		or r24,r25
+ 282 004c 01F0      		breq .L9
+ 283               	.LBB55:
+  22:main.c        **** 				change(1,0);
+ 284               		.loc 1 22 5 is_stmt 1 discriminator 4 view .LVU69
+  22:main.c        **** 				change(1,0);
+ 285               		.loc 1 22 10 is_stmt 0 discriminator 4 view .LVU70
+ 286 004e 8091 0000 		lds r24,change_rate
+ 287 0052 9091 0000 		lds r25,change_rate+1
+ 288 0056 C80F      		add r28,r24
+ 289 0058 D91F      		adc r29,r25
+ 290               	.LVL20:
+  23:main.c        **** 				change(0,1);
+ 291               		.loc 1 23 5 is_stmt 1 discriminator 4 view .LVU71
+ 292               	.LBB56:
+ 293               	.LBI56:
+  42:main.c        **** 	if(x==0){
+ 294               		.loc 1 42 6 discriminator 4 view .LVU72
+ 295               	.LBB57:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 296               		.loc 1 43 2 discriminator 4 view .LVU73
+  46:main.c        **** 	}
+ 297               		.loc 1 46 3 discriminator 4 view .LVU74
+  46:main.c        **** 	}
+ 298               		.loc 1 46 9 is_stmt 0 discriminator 4 view .LVU75
+ 299 005a C09A      		sbi 0x18,0
+ 300               	.LVL21:
+  46:main.c        **** 	}
+ 301               		.loc 1 46 9 discriminator 4 view .LVU76
+ 302               	.LBE57:
+ 303               	.LBE56:
+  24:main.c        ****         		delay_ms(delay);
+ 304               		.loc 1 24 5 is_stmt 1 discriminator 4 view .LVU77
+ 305               	.LBB58:
+ 306               	.LBI58:
+  42:main.c        **** 	if(x==0){
+ 307               		.loc 1 42 6 discriminator 4 view .LVU78
+ 308               	.LBB59:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 309               		.loc 1 43 2 discriminator 4 view .LVU79
+ 310 005c 81E0      		ldi r24,lo8(1)
+ 311 005e 90E0      		ldi r25,0
+ 312 0060 00D0      		rcall change.part.0
+ 313               	.LVL22:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 314               		.loc 1 43 2 is_stmt 0 discriminator 4 view .LVU80
+ 315               	.LBE59:
+ 316               	.LBE58:
+  25:main.c        **** 				change(0,0);
+ 317               		.loc 1 25 11 is_stmt 1 discriminator 4 view .LVU81
+ 318 0062 CE01      		movw r24,r28
+ 319 0064 00D0      		rcall delay_ms
+ 320               	.LVL23:
+  26:main.c        **** 				change(1,1);
+ 321               		.loc 1 26 5 discriminator 4 view .LVU82
+ 322               	.LBB60:
+ 323               	.LBI60:
+  42:main.c        **** 	if(x==0){
+ 324               		.loc 1 42 6 discriminator 4 view .LVU83
+ 325               	.LBB61:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 326               		.loc 1 43 2 discriminator 4 view .LVU84
+ 327 0066 90E0      		ldi r25,0
+ 328 0068 80E0      		ldi r24,0
+ 329 006a 00D0      		rcall change.part.0
+ 330               	.LVL24:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 331               		.loc 1 43 2 is_stmt 0 discriminator 4 view .LVU85
+ 332               	.LBE61:
+ 333               	.LBE60:
+  27:main.c        ****        			delay_ms(delay); 
+ 334               		.loc 1 27 5 is_stmt 1 discriminator 4 view .LVU86
+ 335               	.LBB62:
+ 336               	.LBI62:
+  42:main.c        **** 	if(x==0){
+ 337               		.loc 1 42 6 discriminator 4 view .LVU87
+ 338               	.LBB63:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 339               		.loc 1 43 2 discriminator 4 view .LVU88
+  46:main.c        **** 	}
+ 340               		.loc 1 46 3 discriminator 4 view .LVU89
+  46:main.c        **** 	}
+ 341               		.loc 1 46 9 is_stmt 0 discriminator 4 view .LVU90
+ 342 006c C19A      		sbi 0x18,1
+ 343               	.LVL25:
+  46:main.c        **** 	}
+ 344               		.loc 1 46 9 discriminator 4 view .LVU91
+ 345               	.LBE63:
+ 346               	.LBE62:
+  28:main.c        **** 			}
+ 347               		.loc 1 28 11 is_stmt 1 discriminator 4 view .LVU92
+ 348 006e CE01      		movw r24,r28
+ 349 0070 00D0      		rcall delay_ms
+ 350               	.LVL26:
+ 351               	.LBE55:
+  21:main.c        **** 				delay+=change_rate;
+ 352               		.loc 1 21 39 discriminator 4 view .LVU93
+  21:main.c        **** 				delay+=change_rate;
+ 353               		.loc 1 21 40 is_stmt 0 discriminator 4 view .LVU94
+ 354 0072 0F5F      		subi r16,-1
+ 355 0074 1F4F      		sbci r17,-1
+ 356               	.LVL27:
+  21:main.c        **** 				delay+=change_rate;
+ 357               		.loc 1 21 40 discriminator 4 view .LVU95
+ 358 0076 00C0      		rjmp .L13
+ 359               	.LVL28:
+ 360               	.L12:
+  21:main.c        **** 				delay+=change_rate;
+ 361               		.loc 1 21 40 discriminator 4 view .LVU96
+ 362               	.LBE54:
+ 363               	.LBB64:
+  12:main.c        **** 				delay-=change_rate;
+ 364               		.loc 1 12 25 discriminator 3 view .LVU97
+ 365 0078 83E0      		ldi r24,lo8(3)
+ 366 007a 90E0      		ldi r25,0
+ 367 007c 00D0      		rcall get_button
+ 368               	.LVL29:
+  12:main.c        **** 				delay-=change_rate;
+ 369               		.loc 1 12 23 discriminator 3 view .LVU98
+ 370 007e 892B      		or r24,r25
+ 371 0080 01F0      		breq .L15
+ 372               	.LBB45:
+  13:main.c        **** 				change(1,0);
+ 373               		.loc 1 13 5 is_stmt 1 discriminator 4 view .LVU99
+  13:main.c        **** 				change(1,0);
+ 374               		.loc 1 13 10 is_stmt 0 discriminator 4 view .LVU100
+ 375 0082 8091 0000 		lds r24,change_rate
+ 376 0086 9091 0000 		lds r25,change_rate+1
+ 377 008a C81B      		sub r28,r24
+ 378 008c D90B      		sbc r29,r25
+ 379               	.LVL30:
+  14:main.c        **** 				change(0,1);
+ 380               		.loc 1 14 5 is_stmt 1 discriminator 4 view .LVU101
+ 381               	.LBB46:
+ 382               	.LBI46:
+  42:main.c        **** 	if(x==0){
+ 383               		.loc 1 42 6 discriminator 4 view .LVU102
+ 384               	.LBB47:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 385               		.loc 1 43 2 discriminator 4 view .LVU103
+  46:main.c        **** 	}
+ 386               		.loc 1 46 3 discriminator 4 view .LVU104
+  46:main.c        **** 	}
+ 387               		.loc 1 46 9 is_stmt 0 discriminator 4 view .LVU105
+ 388 008e C09A      		sbi 0x18,0
+ 389               	.LVL31:
+  46:main.c        **** 	}
+ 390               		.loc 1 46 9 discriminator 4 view .LVU106
+ 391               	.LBE47:
+ 392               	.LBE46:
+  15:main.c        ****         		delay_ms(delay);
+ 393               		.loc 1 15 5 is_stmt 1 discriminator 4 view .LVU107
+ 394               	.LBB48:
+ 395               	.LBI48:
+  42:main.c        **** 	if(x==0){
+ 396               		.loc 1 42 6 discriminator 4 view .LVU108
+ 397               	.LBB49:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 398               		.loc 1 43 2 discriminator 4 view .LVU109
+ 399 0090 81E0      		ldi r24,lo8(1)
+ 400 0092 90E0      		ldi r25,0
+ 401 0094 00D0      		rcall change.part.0
+ 402               	.LVL32:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 403               		.loc 1 43 2 is_stmt 0 discriminator 4 view .LVU110
+ 404               	.LBE49:
+ 405               	.LBE48:
+  16:main.c        **** 				change(0,0);
+ 406               		.loc 1 16 11 is_stmt 1 discriminator 4 view .LVU111
+ 407 0096 CE01      		movw r24,r28
+ 408 0098 00D0      		rcall delay_ms
+ 409               	.LVL33:
+  17:main.c        **** 				change(1,1);
+ 410               		.loc 1 17 5 discriminator 4 view .LVU112
+ 411               	.LBB50:
+ 412               	.LBI50:
+  42:main.c        **** 	if(x==0){
+ 413               		.loc 1 42 6 discriminator 4 view .LVU113
+ 414               	.LBB51:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 415               		.loc 1 43 2 discriminator 4 view .LVU114
+ 416 009a 90E0      		ldi r25,0
+ 417 009c 80E0      		ldi r24,0
+ 418 009e 00D0      		rcall change.part.0
+ 419               	.LVL34:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 420               		.loc 1 43 2 is_stmt 0 discriminator 4 view .LVU115
+ 421               	.LBE51:
+ 422               	.LBE50:
+  18:main.c        ****        			delay_ms(delay); 
+ 423               		.loc 1 18 5 is_stmt 1 discriminator 4 view .LVU116
+ 424               	.LBB52:
+ 425               	.LBI52:
+  42:main.c        **** 	if(x==0){
+ 426               		.loc 1 42 6 discriminator 4 view .LVU117
+ 427               	.LBB53:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 428               		.loc 1 43 2 discriminator 4 view .LVU118
+  46:main.c        **** 	}
+ 429               		.loc 1 46 3 discriminator 4 view .LVU119
+  46:main.c        **** 	}
+ 430               		.loc 1 46 9 is_stmt 0 discriminator 4 view .LVU120
+ 431 00a0 C19A      		sbi 0x18,1
+ 432               	.LVL35:
+  46:main.c        **** 	}
+ 433               		.loc 1 46 9 discriminator 4 view .LVU121
+ 434               	.LBE53:
+ 435               	.LBE52:
+  19:main.c        **** 			}
+ 436               		.loc 1 19 11 is_stmt 1 discriminator 4 view .LVU122
+ 437 00a2 CE01      		movw r24,r28
+ 438 00a4 00D0      		rcall delay_ms
+ 439               	.LVL36:
+ 440               	.LBE45:
+  12:main.c        **** 				delay-=change_rate;
+ 441               		.loc 1 12 39 discriminator 4 view .LVU123
+  12:main.c        **** 				delay-=change_rate;
+ 442               		.loc 1 12 40 is_stmt 0 discriminator 4 view .LVU124
+ 443 00a6 0F5F      		subi r16,-1
+ 444 00a8 1F4F      		sbci r17,-1
+ 445               	.LVL37:
+  12:main.c        **** 				delay-=change_rate;
+ 446               		.loc 1 12 40 discriminator 4 view .LVU125
+ 447 00aa 00C0      		rjmp .L11
+ 448               	.LVL38:
+ 449               	.L10:
+  12:main.c        **** 				delay-=change_rate;
+ 450               		.loc 1 12 40 discriminator 4 view .LVU126
+ 451               	.LBE64:
+ 452               	.LBE41:
+ 453               	.LBB65:
+  31:main.c        **** 			change(0,1);
+ 454               		.loc 1 31 4 is_stmt 1 view .LVU127
+ 455               	.LBB66:
+ 456               	.LBI66:
+  42:main.c        **** 	if(x==0){
+ 457               		.loc 1 42 6 view .LVU128
+ 458               	.LBB67:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 459               		.loc 1 43 2 view .LVU129
+  46:main.c        **** 	}
+ 460               		.loc 1 46 3 view .LVU130
+  46:main.c        **** 	}
+ 461               		.loc 1 46 9 is_stmt 0 view .LVU131
+ 462 00ac C29A      		sbi 0x18,2
+ 463               	.LVL39:
+  46:main.c        **** 	}
+ 464               		.loc 1 46 9 view .LVU132
+ 465               	.LBE67:
+ 466               	.LBE66:
+  32:main.c        **** 			change(0,0);
+ 467               		.loc 1 32 4 is_stmt 1 view .LVU133
+ 468               	.LBB68:
+ 469               	.LBI68:
+  42:main.c        **** 	if(x==0){
+ 470               		.loc 1 42 6 view .LVU134
+ 471               	.LBB69:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 472               		.loc 1 43 2 view .LVU135
+ 473 00ae 81E0      		ldi r24,lo8(1)
+ 474 00b0 90E0      		ldi r25,0
+ 475 00b2 00D0      		rcall change.part.0
+ 476               	.LVL40:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 477               		.loc 1 43 2 is_stmt 0 view .LVU136
+ 478               	.LBE69:
+ 479               	.LBE68:
+  33:main.c        **** 		}
+ 480               		.loc 1 33 4 is_stmt 1 view .LVU137
+ 481               	.LBB70:
+ 482               	.LBI70:
+  42:main.c        **** 	if(x==0){
+ 483               		.loc 1 42 6 view .LVU138
+ 484               	.LBB71:
+  43:main.c        **** 		PORTB &=~(1<<port);
+ 485               		.loc 1 43 2 view .LVU139
+ 486 00b4 90E0      		ldi r25,0
+ 487 00b6 80E0      		ldi r24,0
+ 488 00b8 00D0      		rcall change.part.0
+ 489               	.LVL41:
+ 490 00ba 00C0      		rjmp .L9
+ 491               	.LBE71:
+ 492               	.LBE70:
+ 493               	.LBE65:
+ 494               	.LBE40:
+ 495               		.cfi_endproc
+ 496               	.LFE11:
+ 498               	.global	scale
+ 499               		.data
+ 502               	scale:
+ 503 0000 6400      		.word	100
+ 504               	.global	start
+ 507               	start:
+ 508 0002 6400      		.word	100
+ 509               	.global	change_rate
+ 512               	change_rate:
+ 513 0004 0100      		.word	1
+ 514               		.text
+ 515               	.Letext0:
+ 516               		.file 3 "/usr/local/Cellar/avr-gcc/9.3.0/avr/include/stdint.h"
+ 517               		.file 4 "/usr/local/Cellar/avr-gcc/9.3.0/lib/avr-gcc/9/gcc/avr/9.3.0/include/stddef.h"
+ 518               		.file 5 "/usr/local/Cellar/avr-gcc/9.3.0/avr/include/stdlib.h"
 DEFINED SYMBOLS
                             *ABS*:0000000000000000 main.c
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:2      *ABS*:000000000000003e __SP_H__
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:3      *ABS*:000000000000003d __SP_L__
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:4      *ABS*:000000000000003f __SREG__
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:5      *ABS*:0000000000000000 __tmp_reg__
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:6      *ABS*:0000000000000001 __zero_reg__
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:13     .text.startup:0000000000000000 main
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:80     .text:0000000000000000 delay_ms
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:146    .text:000000000000001e change
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:205    .data:0000000000000000 scale
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:210    .data:0000000000000002 start
-/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//cccacUM5.s:215    .data:0000000000000004 change_rate
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:2      *ABS*:000000000000003e __SP_H__
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:3      *ABS*:000000000000003d __SP_L__
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:4      *ABS*:000000000000003f __SREG__
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:5      *ABS*:0000000000000000 __tmp_reg__
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:6      *ABS*:0000000000000001 __zero_reg__
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:11     .text:0000000000000000 change.part.0
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:45     .text:0000000000000016 delay_ms
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:111    .text:0000000000000034 change
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:158    .text:0000000000000054 get_button
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:196    .text.startup:0000000000000000 main
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:507    .data:0000000000000002 start
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:502    .data:0000000000000000 scale
+/var/folders/zp/t4dg0bvn1bvf9m568x4tpxlm0000gn/T//ccr4tLXA.s:512    .data:0000000000000004 change_rate
 
 UNDEFINED SYMBOLS
 __do_copy_data
